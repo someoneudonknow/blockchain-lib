@@ -59,7 +59,18 @@ func main() {
 	// val.SetString("c7207fee197d27c618aea621406f6bf5ef6fca38681d82b2f06fddbdce6feab6", 16)
 	// fmt.Printf("base58 encoding is %s\n", ecc.EncodeBase58(val.Bytes()))
 
-	privateKey := ecc.NewPrivateKey(big.NewInt(5002))
-	pubKey := privateKey.Public()
-	fmt.Printf("Wallet address for 5002*G is %s\n", pubKey.Address(false, true))
+	// privateKey := ecc.NewPrivateKey(big.NewInt(5002))
+	// pubKey := privateKey.Public()
+	// fmt.Printf("Wallet address for 5002*G is %s\n", pubKey.Address(false, true))
+
+	p := new(big.Int)
+	p.SetString("12345678", 16)
+	bytes := p.Bytes()
+	fmt.Printf("bytes for 0x12345678 is %x\n", bytes)
+
+	littleEndianByte := ecc.BigIntToLittleEndian(p, ecc.LITTLE_ENDIAN_4_BYTES)
+	fmt.Printf("little endian for 0x12345678 is %x\n", littleEndianByte)
+
+	littleEndianByteToInt64 := ecc.LittleEndianToBigInt(littleEndianByte, ecc.LITTLE_ENDIAN_4_BYTES)
+	fmt.Printf("little endian bytes into int is %x\n", littleEndianByteToInt64)
 }
