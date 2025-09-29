@@ -2,61 +2,9 @@ package ecc
 
 import (
 	"crypto/sha256"
-	"math/big"
-
-	"github.com/tsuna/endian"
 	"golang.org/x/crypto/ripemd160"
+	"math/big"
 )
-
-type LITTLE_ENDIAN_LENGTH int
-
-const (
-	LITTLE_ENDIAN_2_BYTES = iota
-	LITTLE_ENDIAN_4_BYTES
-	LITTLE_ENDIAN_8_BYTES
-)
-
-func BigIntToLittleEndian(bigInt *big.Int, length LITTLE_ENDIAN_LENGTH) []byte {
-	switch length {
-	case LITTLE_ENDIAN_2_BYTES:
-		val := bigInt.Int64()
-		littleEndian := endian.HostToNetUint16(uint16(val))
-		p := big.NewInt(int64(littleEndian))
-		return p.Bytes()
-	case LITTLE_ENDIAN_4_BYTES:
-		val := bigInt.Int64()
-		littleEndian := endian.HostToNetUint32(uint32(val))
-		p := big.NewInt(int64(littleEndian))
-		return p.Bytes()
-	case LITTLE_ENDIAN_8_BYTES:
-		val := bigInt.Int64()
-		littleEndian := endian.HostToNetUint64(uint64(val))
-		p := big.NewInt(int64(littleEndian))
-		return p.Bytes()
-	}
-	panic("Not implemented error")
-}
-
-func LittleEndianToBigInt(bytes []byte, length LITTLE_ENDIAN_LENGTH) *big.Int {
-	switch length {
-	case LITTLE_ENDIAN_2_BYTES:
-		p := new(big.Int)
-		p.SetBytes(bytes)
-		val := endian.NetToHostUint16(uint16(p.Int64()))
-		return big.NewInt(int64(val))
-	case LITTLE_ENDIAN_4_BYTES:
-		p := new(big.Int)
-		p.SetBytes(bytes)
-		val := endian.NetToHostUint32(uint32(p.Int64()))
-		return big.NewInt(int64(val))
-	case LITTLE_ENDIAN_8_BYTES:
-		p := new(big.Int)
-		p.SetBytes(bytes)
-		val := endian.NetToHostUint64(uint64(p.Int64()))
-		return big.NewInt(int64(val))
-	}
-	panic("Not implemented error")
-}
 
 func Hash160(s []byte) []byte {
 	sha256 := sha256.Sum256(s)

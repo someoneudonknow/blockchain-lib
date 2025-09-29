@@ -1,9 +1,8 @@
 package main
 
 import (
-	"ecc"
-	"fmt"
-	"math/big"
+	"encoding/hex"
+	tx "transaction"
 )
 
 /*
@@ -18,59 +17,11 @@ import (
 */
 
 func main() {
-	// e := big.NewInt(12345)
-	// message := new(big.Int)
-	// message.SetBytes(ecc.Hash256("TuTran transfer 1 BTC to TuTran"))
-	//
-	// pk := ecc.NewPrivateKey(e)
-	//
-	// sig := pk.Sign(message)
-	//
-	// fmt.Printf("Sign message is %s\n", sig)
-	//
-	// pubKey := pk.Public()
-	// n := ecc.BitcoinN()
-	//
-	// fmt.Printf("SEC of pubKey is: %s\n", pubKey.SEC(true))
-	//
-	// messageFieldElement := ecc.NewFieldElement(n, message)
-	//
-	// if pubKey.Verify(messageFieldElement, sig) {
-	// 	fmt.Println("The signature is valid")
-	// }
-	//
-	// secBinUnCompressed := new(big.Int)
-	// secBinUnCompressed.SetString(pubKey.SEC(false), 16)
-	// unUnCompressedDecode := ecc.ParseSEC(secBinUnCompressed.Bytes())
-	//
-	// fmt.Printf("Parse SEC of pubKey is: %s\n", unUnCompressedDecode)
+	hexStr := "0100000001813f79011acb80925dfe69b3def355fe914bd1d96a3f5f71bf8303c6a989c7d1000000006b483045022100ed81ff192e75a3fd2304004dcadb746fa5e24c5031ccfcf21320b0277457c98f02207a986d955c6e0cb35d446a89d3f56100f4d7f67801c31967743a9c8e10615bed01210349fc4e631e3624a545de3f89f5d8684c7b8138bd94bdd531d2e213bf016b278afeffffff02a135ef01000000001976a914bc3b654dca7e56b04dca18f2566cdaf02e8d9ada88ac99c39800000000001976a9141c4bc762dd5423e332166702cb75f40df79fea1288ac19430600"
+	decoded, err := hex.DecodeString(hexStr)
+	if err != nil {
+		panic(err)
+	}
 
-	// r := new(big.Int)
-	// r.SetString("37206a0610995c58074999cb9767b87af4c4978db68c06e8e6e81d282047a7c6", 16)
-	// rField := ecc.S256Field(r)
-	// s := new(big.Int)
-	// s.SetString("8ca63759c1157ebeaec0d03cecca119fc9a75bf8e6d0fa65c841c8e2738cdaec", 16)
-	// sField := ecc.S256Field(s)
-	// sig := ecc.NewSignature(rField, sField)
-	// derEncode := sig.DER()
-	// fmt.Printf("der encoding for signature is %x\n", derEncode)
-
-	// val := new(big.Int)
-	// val.SetString("c7207fee197d27c618aea621406f6bf5ef6fca38681d82b2f06fddbdce6feab6", 16)
-	// fmt.Printf("base58 encoding is %s\n", ecc.EncodeBase58(val.Bytes()))
-
-	// privateKey := ecc.NewPrivateKey(big.NewInt(5002))
-	// pubKey := privateKey.Public()
-	// fmt.Printf("Wallet address for 5002*G is %s\n", pubKey.Address(false, true))
-
-	p := new(big.Int)
-	p.SetString("12345678", 16)
-	bytes := p.Bytes()
-	fmt.Printf("bytes for 0x12345678 is %x\n", bytes)
-
-	littleEndianByte := ecc.BigIntToLittleEndian(p, ecc.LITTLE_ENDIAN_4_BYTES)
-	fmt.Printf("little endian for 0x12345678 is %x\n", littleEndianByte)
-
-	littleEndianByteToInt64 := ecc.LittleEndianToBigInt(littleEndianByte, ecc.LITTLE_ENDIAN_4_BYTES)
-	fmt.Printf("little endian bytes into int is %x\n", littleEndianByteToInt64)
+	tx.ParseTransaction(decoded)
 }
