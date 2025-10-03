@@ -1,6 +1,9 @@
 package transaction
 
-import "bufio"
+import (
+	"bufio"
+	"math/big"
+)
 
 /*
 - one kind for data operation -> move a chunk of data to stack
@@ -78,13 +81,51 @@ func NewScriptSig(reader *bufio.Reader) *ScriptSig {
 		if count != scriptLen {
 			panic("parsing script field failed")
 		}
-
-		return &ScriptSig{
-			cmds,
-		}
 	}
 
 	return &ScriptSig{
 		cmds,
 	}
+}
+
+func (ss *ScriptSig) Serialize() []byte {
+	rawResult := ss.rawSerialize()
+	total := len(rawResult)
+	result := []byte{}
+	// need to encode the length of script at the head
+	result = append(result, EncodeVarint(big.NewInt(int64(total)))...)
+	result = append(result, rawResult...)
+	return result
+}
+
+func (ss *ScriptSig) rawSerialize() []byte {
+	result := []byte{}
+
+	for _, cmd := range ss.cmds {
+		// length == 1 mean command
+		if len(cmd) == 1 {
+			result = append(result, cmd...)
+		} else {
+			length := len(cmd)
+			if length <= SCRIPT_DATA_LENGTH_END {
+				// length in [0x01, 0x4b]
+				result = append(result, byte(length))
+			} else if length > SCRIPT_DATA_LENGTH_END && length < 0x100 {
+				// this is OP_PUSHDATA1 command, push the command and then the next byte is the length of the data
+				result = append(result, OP_PUSHDATA1)
+				result = append(result, byte(length))
+			} else if length >= 0x100 && length <= 520 {
+				// For the TCP packet the data that the payload cannot be bigger than this length (520)
+				// this is OP_PUSHDATA2 commond, push the command and then the next 2 byte is the length of the data
+				result = append(result, OP_PUSHDATA2)
+				lenBuf := BigIntToLittleEndian(big.NewInt(int64(length)), LITTLE_ENDIAN_2_BYTES)
+				result = append(result, lenBuf...)
+			} else {
+				panic("cmd too long")
+			}
+		}
+		result = append(result, cmd...)
+	}
+
+	return result
 }

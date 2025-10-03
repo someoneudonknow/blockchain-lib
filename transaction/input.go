@@ -31,6 +31,8 @@ func NewTransactionInput(reader *bufio.Reader) *TransactionInput {
 
 	// next is scriptSig
 	transactionInput.scriptSig = NewScriptSig(reader)
+	scriptBuf := transactionInput.scriptSig.Serialize()
+	fmt.Println("script byte:%x\n", scriptBuf)
 
 	sequence := make([]byte, 4)
 	reader.Read(sequence)
