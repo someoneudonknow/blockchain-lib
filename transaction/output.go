@@ -2,14 +2,19 @@ package transaction
 
 import (
 	"bufio"
+	"math/big"
 )
 
 type TransactionOutput struct {
-	reader *bufio.Reader
+	amount       *big.Int
+	scriptPubKey *ScriptSig
+	scriptLength *big.Int
 }
 
-func NewTransactionOutput(reader *bufio.Reader) *TransactionInput {
-	return &TransactionInput{
-		reader,
+func NewTransactionOutput(reader *bufio.Reader) *TransactionOutput {
+	return &TransactionOutput{
+		amount:       big.NewInt(0),
+		scriptPubKey: nil,
+		scriptLength: nil,
 	}
 }

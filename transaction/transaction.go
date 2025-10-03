@@ -8,11 +8,11 @@ import (
 )
 
 type Transaction struct {
-	version  *big.Int
-	txInputs []*TransactionInput
-	txOutput []*TransactionOutput
-	lockTime *big.Int
-	testnet  bool
+	version   *big.Int
+	txInputs  []*TransactionInput
+	txOutputs []*TransactionOutput
+	lockTime  *big.Int
+	testnet   bool
 }
 
 func getInputCount(bufReader *bufio.Reader) *big.Int {
@@ -35,6 +35,7 @@ func getInputCount(bufReader *bufio.Reader) *big.Int {
 }
 
 func ParseTransaction(binary []byte) *Transaction {
+	// Transaction template: version (4 bytes LE) || input count (varint) || inputs (varsize) || output count (varint) || outputs (varsize) || lock time (4 bytes)
 	transaction := Transaction{}
 	reader := bytes.NewReader(binary)
 	bufReader := bufio.NewReader(reader)
@@ -55,6 +56,18 @@ func ParseTransaction(binary []byte) *Transaction {
 		inputs = append(inputs, input)
 	}
 	transaction.txInputs = inputs
+
+	outputs := []*TransactionOutput{}
+	outputCount := ReadVarint(bufReader)
+	for i := 0; i < int(outputCount.Int64()); i++ {
+		output := NewTransactionOutput(bufReader)
+		outputs = append(outputs, output)
+	}
+	transaction.txOutputs = outputs
+
+	locktimeBytes := make([]byte, 4)
+	bufReader.Read(locktimeBytes)
+	transaction.lockTime = LittleEndianToBigInt(locktimeBytes, LITTLE_ENDIAN_4_BYTES)
 
 	return &transaction
 }
