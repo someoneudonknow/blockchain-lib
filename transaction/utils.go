@@ -10,6 +10,8 @@ import (
 
 type LITTLE_ENDIAN_LENGTH int
 
+// Test commit
+
 const (
 	LITTLE_ENDIAN_2_BYTES = iota
 	LITTLE_ENDIAN_4_BYTES
