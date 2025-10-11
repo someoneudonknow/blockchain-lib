@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/hex"
+	"fmt"
 	tx "transaction"
 )
 
@@ -24,4 +25,10 @@ func main() {
 	}
 
 	tx.ParseTransaction(decoded)
+
+	opCode := tx.NewBitcoinOpCode()
+
+	encoded := opCode.EncodeNum(-1)
+	fmt.Printf("encode -1: %x\n", encoded)
+	fmt.Printf("decode -1: %x\n", opCode.DecodeNum(encoded))
 }

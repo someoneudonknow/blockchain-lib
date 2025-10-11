@@ -56,7 +56,7 @@ func (ti *TransactionInput) Value(testnet bool) (*big.Int, error) {
 func reverseByteSlice(bytes []byte) []byte {
 	reversed := []byte{}
 	for i := len(bytes) - 1; i >= 0; i-- {
-		reversed = append(reversed, reversed[i])
+		reversed = append(reversed, bytes[i])
 	}
 	return reversed
 }
