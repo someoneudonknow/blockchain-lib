@@ -1,10 +1,72 @@
 package ecc
 
 import (
+	"bufio"
+	"bytes"
 	"crypto/sha256"
-	"golang.org/x/crypto/ripemd160"
 	"math/big"
+
+	"golang.org/x/crypto/ripemd160"
 )
+
+// 0x30 || total_length || 0x02 || r_length || r_bytes || 0x02 || s_length || s_bytes
+func ParseSigBin(sigBin []byte) *Signature {
+	reader := bytes.NewReader(sigBin)
+	bufReader := bufio.NewReader(reader)
+
+	firstByte := make([]byte, 1)
+	bufReader.Read(firstByte)
+
+	if firstByte[0] != 0x30 {
+		panic("Bad signature")
+	}
+
+	totalLength := make([]byte, 1)
+	bufReader.Read(totalLength)
+
+	if totalLength[0]+2 != byte(len(sigBin)) {
+		panic("Bad signature")
+	}
+
+	rMarker := make([]byte, 1)
+	bufReader.Read(rMarker)
+	if rMarker[0] != 0x02 {
+		panic("Bad singature")
+	}
+
+	rLenBuf := make([]byte, 1)
+	bufReader.Read(rLenBuf)
+	rLen := rLenBuf[0]
+	rBin := make([]byte, rLen)
+	bufReader.Read(rBin)
+	rBig := new(big.Int)
+	rBig.SetBytes(rBin)
+
+	sMarker := make([]byte, 1)
+	bufReader.Read(sMarker)
+	if sMarker[0] != 0x02 {
+		panic("Bad signature")
+	}
+
+	sLenBuf := make([]byte, 1)
+	bufReader.Read(sLenBuf)
+	sLen := sLenBuf[0]
+	sBin := make([]byte, sLen)
+	bufReader.Read(sBin)
+	sBig := new(big.Int)
+	sBig.SetBytes(sBin)
+
+	if int(sLen+rLen+6) != len(sigBin) {
+		panic("Signature wrong")
+	}
+
+	n := BitcoinN()
+
+	return &Signature{
+		r: NewFieldElement(n, rBig),
+		s: NewFieldElement(n, sBig),
+	}
+}
 
 func Hash160(s []byte) []byte {
 	sha256 := sha256.Sum256(s)

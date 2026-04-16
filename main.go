@@ -1,6 +1,7 @@
 package main
 
 import (
+	"ecc"
 	"encoding/hex"
 	"fmt"
 	tx "transaction"

@@ -39,13 +39,13 @@ func NewScriptSig(reader *bufio.Reader) *ScriptSig {
 	// Read the script length to know how many bytes to read
 	scriptLen := ReadVarint(reader).Int64()
 	count := int64(0)
-	current := make([]byte, 1)
 
 	for count < scriptLen {
+		current := make([]byte, 1)
 		reader.Read(current)
-
 		count++
 		currentByte := current[0]
+
 		if currentByte >= SCRIPT_DATA_LENGTH_BEGIN && currentByte <= SCRIPT_DATA_LENGTH_END {
 			// push the following byte to stack
 			data := make([]byte, currentByte)
@@ -77,10 +77,10 @@ func NewScriptSig(reader *bufio.Reader) *ScriptSig {
 			// Data processing operation such as OP_DUP, OP_EQUALVERIFY,...
 			cmds = append(cmds, []byte{currentByte})
 		}
+	}
 
-		if count != scriptLen {
-			panic("parsing script field failed")
-		}
+	if count != scriptLen {
+		panic("Did not read all bytes specified by script length")
 	}
 
 	return &ScriptSig{
@@ -116,7 +116,7 @@ func (ss *ScriptSig) rawSerialize() []byte {
 				result = append(result, byte(length))
 			} else if length >= 0x100 && length <= 520 {
 				// For the TCP packet the data that the payload cannot be bigger than this length (520)
-				// this is OP_PUSHDATA2 commond, push the command and then the next 2 byte is the length of the data
+				// this is OP_PUSHDATA2 command, push the command and then the next 2 byte is the length of the data
 				result = append(result, OP_PUSHDATA2)
 				lenBuf := BigIntToLittleEndian(big.NewInt(int64(length)), LITTLE_ENDIAN_2_BYTES)
 				result = append(result, lenBuf...)
